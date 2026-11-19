@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>帖子详情 · 芙蓉论坛</title>
+<style>
+  :root{
+    --bg:#eef0f3; --card:#fff; --line:#d9dde3; --text:#222;
+    --muted:#8a9099; --link:#1a5fb4; --green:#2f4f3a; --red:#a33a2f;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--bg);color:var(--text);
+    font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    font-size:13px;line-height:1.7;
+  }
+  a{color:var(--link);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+
+  header{background:var(--green);color:#f3f1ec;padding:10px 16px;}
+  .header-inner{max-width:900px;margin:0 auto;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+  .logo{font-size:19px;font-weight:700;letter-spacing:1px;}
+  .board-name{font-size:12px;opacity:.85;}
+  .header-right{margin-left:auto;font-size:12px;opacity:.8;}
+  .header-right a{color:#f3f1ec;}
+
+  main{max-width:900px;margin:14px auto 40px;padding:0 12px;}
+
+  .breadcrumb{font-size:12px;color:var(--muted);margin-bottom:8px;}
+
+  .thread-title{
+    background:var(--card);border:1px solid var(--line);
+    border-radius:4px 4px 0 0;padding:12px 16px;
+  }
+  .thread-title h1{
+    font-size:17px;margin:0 0 6px;line-height:1.4;
+  }
+  .thread-title .meta{font-size:12px;color:var(--muted);}
+
+  /* 楼层 */
+  .floor{
+    display:flex;background:var(--card);
+    border:1px solid var(--line);border-top:none;
+  }
+  .floor:last-of-type{border-radius:0 0 4px 4px;}
+  .floor-side{
+    width:150px;flex-shrink:0;padding:12px;
+    border-right:1px solid #eef0f3;
+    text-align:center;background:#fafbfc;
+  }
+  .avatar{
+    width:56px;height:56px;border-radius:4px;margin:0 auto 8px;
+    background:#d9e3db;color:var(--green);
+    display:flex;align-items:center;justify-content:center;
+    font-size:20px;font-weight:600;user-select:none;
+  }
+  .side-name{font-weight:600;color:var(--green);word-break:break-all;}
+  .side-meta{font-size:11px;color:var(--muted);margin-top:4px;}
+  .floor-main{flex:1;min-width:0;padding:12px 16px;}
+  .floor-head{
+    display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
+    font-size:12px;color:var(--muted);
+    border-bottom:1px dashed #eef0f3;padding-bottom:6px;margin-bottom:8px;
+  }
+  .floor-head .op-badge{
+    background:var(--green);color:#fff;font-size:10px;
+    padding:0 4px;border-radius:2px;
+  }
+  .floor-num{margin-left:auto;font-size:11px;}
+  .floor-content{word-break:break-word;min-height:40px;}
+  .floor-content .quote{
+    color:#666;background:#f6f7f9;border-left:3px solid #d9dde3;
+    padding:4px 8px;margin:6px 0;font-size:12px;
+  }
+
+  /* 快速回复 */
+  .reply-box{
+    background:var(--card);border:1px solid var(--line);
+    border-radius:4px;margin-top:12px;padding:12px 16px;
+  }
+  .reply-box h3{font-size:13px;margin:0 0 8px;color:#555;}
+  .reply-box textarea{
+    width:100%;min-height:70px;resize:vertical;
+    border:1px solid var(--line);border-radius:3px;padding:8px;
+    font-family:inherit;font-size:13px;background:#fafbfc;
+  }
+  .reply-box .actions{margin-top:8px;text-align:right;}
+  .reply-box button{
+    background:var(--green);color:#fff;border:none;border-radius:3px;
+    padding:6px 16px;font-size:13px;cursor:pointer;
+  }
+  .reply-box button:hover{opacity:.9;}
+
+  .back-link{display:inline-block;margin-top:14px;font-size:13px;}
+
+  footer{text-align:center;font-size:11px;color:var(--muted);padding:16px 12px 40px;}
+
+  @media(max-width:640px){
+    .floor{flex-direction:column;}
+    .floor-side{
+      width:100%;border-right:none;border-bottom:1px solid #eef0f3;
+      display:flex;align-items:center;gap:10px;text-align:left;padding:8px 12px;
+    }
+    .avatar{width:36px;height:36px;font-size:14px;margin:0;}
+    .side-meta{margin-top:0;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <span class="logo">芙蓉论坛</span>
+    <span class="board-name">› 城市生活 › 莲花公园版</span>
+    <span class="header-right"><a href="forum.html">返回列表</a></span>
+  </div>
+</header>
+
+<main>
+  <div class="breadcrumb">
+    <a href="forum.html">芙蓉论坛</a> › <a href="forum.html">莲花公园版</a> › 帖子详情
+  </div>
+
+  <section class="thread-title">
+    <h1 id="thread-title">加载中…</h1>
+    <div class="meta" id="thread-meta"></div>
+  </section>
+
+  <div id="floors"></div>
+
+  <div class="reply-box">
+    <h3>快速回复</h3>
+    <textarea placeholder="回复功能维护中，请稍后再试。"></textarea>
+    <div class="actions">
+      <button type="button" onclick="alert('回复功能维护中。')">发表回复</button>
+    </div>
+  </div>
+
+  <a class="back-link" href="forum.html">← 返回莲花公园版列表</a>
+</main>
+
+<footer>
+  芙蓉论坛 · 莲花公园版 · 本页面为虚构游戏内容，与真实人物、地点无关
+</footer>
+
+<script>
+  /* ============================================================
+     所有帖子的详情数据
+     key 是 id，要和 forum.html 里的 id 对上。
+     想改内容，改这里的 title、floors。
+     floors 每一项是一层楼：
+       name 用户名，meta 用户信息，time 时间，
+       content 内容，isOp 是否是楼主
+     ============================================================ */
+  const threads = {
+    1: {
+      title: "莲花公园相亲角真的很灵吗？",
+      author: "想脱单的柚子",
+      time: "2024-09-18 21:14",
+      views: "1.2万",
+      floors: [
+        {
+          name: "想脱单的柚子", meta: "注册 2024-08-02", time: "2024-09-18 21:14",
+          isOp: true,
+          content: "听同事说莲花公园相亲角特别灵，她表姐就是在那儿找的对象。有人去过吗？需要准备什么？"
+        },
+        {
+          name: "游戏宅阿伟", meta: "注册 2023-11-19", time: "2024-09-18 21:30",
+          content: "不是说要带上自己的信物去情侣石吗？我把我游戏账密写在本上带过去了。"
+        },
+        {
+          name: "数值膨胀受害者", meta: "注册 2024-01-07", time: "2024-09-18 21:41",
+          content: "现在数值膨胀，你那些牢角色不值钱。"
+        },
+        {
+          name: "夜跑经过珍宝潭", meta: "注册 2022-06-15", time: "2024-09-18 23:02",
+          content: "上次看到一本日记，有点邪乎，不知道是谁的。"
+        },
+        {
+          name: "想脱单的柚子", meta: "注册 2024-08-02", time: "2024-09-18 23:05",
+          isOp: true,
+          content: "啥日记你拍来看看啊？"
+        }
+      ]
+    },
+    2: {
+      title: "求问珍宝潭晚上能钓鱼吗？",
+      author: "钓不到鱼不回家",
+      time: "2024-09-19 19:22",
+      views: "3,481",
+      floors: [
+        {
+          name: "钓不到鱼不回家", meta: "注册 2024-09-01", time: "2024-09-19 19:22",
+          isOp: true,
+          content: "白天人太多，想晚上去珍宝潭试试。有钓友知道让不让钓吗？"
+        },
+        {
+          name: "莲花公园管理员", meta: "版块管理员", time: "2024-09-19 19:30",
+          content: "公园内禁止钓鱼，开门我是管理员。"
+        },
+        {
+          name: "钓不到鱼不回家", meta: "注册 2024-09-01", time: "2024-09-19 19:31",
+          isOp: true,
+          content: "保安叔叔不要抓我QAQ"
+        }
+      ]
+    },
+    3: {
+      title: "避雷，衣冠庙旧址根本没必要去看，一个小博物馆，就几件衣服，没啥好看的。",
+      author: "今天也想出片",
+      time: "2024-09-19 14:08",
+      views: "8,207",
+      floors: [
+        {
+          name: "今天也想出片", meta: "注册 2024-03-12", time: "2024-09-19 14:08",
+          isOp: true,
+          content: "跑了一趟，就一个小博物馆，玻璃柜里几件旧衣服，灯光还暗。想拍照的别去了。"
+        },
+        {
+          name: "快门杀手", meta: "注册 2023-05-21", time: "2024-09-19 14:20",
+          content: "咋的你要出片啊？"
+        },
+        {
+          name: "住在公园西门", meta: "注册 2021-10-03", time: "2024-09-19 16:47",
+          content: "上次去没开门，不知道咋回事。"
+        }
+      ]
+    },
+    4: {
+      title: "有没有人觉得相亲角纸牌编号和长椅对不上？",
+      author: "数椅子的人",
+      time: "2024-09-20 08:15",
+      views: "6,530",
+      floors: [
+        {
+          name: "数椅子的人", meta: "注册 2024-09-20", time: "2024-09-20 08:15",
+          isOp: true,
+          content: "我数了一下，第三排纸牌的编号和长椅上的编号对不上，差了几个。是不是有人动过？"
+        },
+        {
+          name: "公园门口卖气球", meta: "注册 2022-02-14", time: "2024-09-20 08:40",
+          content: "你可以跟公园门口负责处的阿姨反映一下。"
+        }
+      ]
+    },
+    5: {
+      title: "八字合婚真的准吗？我朋友配完好像出事了？",
+      author: "匿名用户",
+      time: "2024-09-20 12:33",
+      views: "2.4万",
+      floors: [
+        {
+          name: "匿名用户", meta: "未注册", time: "2024-09-20 12:33",
+          isOp: true,
+          content: "我朋友在相亲角算了个八字，说跟对方特别合，结果配完没几天人就联系不上了。有懂的吗？"
+        },
+        {
+          name: "吃瓜第一线", meta: "注册 2023-08-08", time: "2024-09-20 12:40",
+          content: "我去，啥事啊？"
+        },
+        {
+          name: "唯物主义者", meta: "注册 2020-12-01", time: "2024-09-20 12:52",
+          content: "感觉信则有不信则无，你朋友咋了？"
+        },
+        {
+          name: "蹲后续", meta: "注册 2024-09-20", time: "2024-09-20 13:01",
+          content: "蹲。"
+        }
+      ]
+    },
+    99: {
+      title: "【寻人】陆晓冬，女，26岁，9月27日晚在莲花公园附近失联",
+      author: "前门分局",
+      time: "2024-09-28 09:00",
+      views: "5.8万",
+      floors: [
+        {
+          name: "前门分局", meta: "认证机构", time: "2024-09-28 09:00",
+          isOp: true,
+          content: "陆晓冬，女，26岁，身高 170cm，体重 52kg，立德中学物理教师。9 月 27 日 20 时许在莲花公园附近失联，最后出现在公园第三长椅附近，身穿米色风衣、黑色长裤，背黑色双肩包。如有线索请联系前门分局或家属。请广大市民转发。"
+        },
+        {
+          name: "住在公园西门", meta: "注册 2021-10-03", time: "2024-09-28 09:42",
+          content: "那天晚上我好像听到珍宝潭那边有动静，还以为是猫。"
+        },
+        {
+          name: "夜跑经过珍宝潭", meta: "注册 2022-06-15", time: "2024-09-28 10:15",
+          content: "第三长椅……不就是我之前看到那本日记附近吗。"
+        }
+      ]
+    }
+  };
+
+  /* ============================================================
+     根据网址里的 ?id= 显示对应帖子
+     ============================================================ */
+  const params = new URLSearchParams(location.search);
+  const id = params.get("id") || "1";
+  const thread = threads[id];
+
+  const titleEl = document.getElementById("thread-title");
+  const metaEl = document.getElementById("thread-meta");
+  const floorsEl = document.getElementById("floors");
+
+  if (!thread) {
+    titleEl.textContent = "帖子不存在或已被删除";
+    metaEl.textContent = "该帖子可能已被版主移动或删除。";
+  } else {
+    document.title = thread.title + " · 芙蓉论坛";
+    titleEl.textContent = thread.title;
+    metaEl.textContent = `楼主：${thread.author} · 发表于 ${thread.time} · 查看 ${thread.views}`;
+
+    floorsEl.innerHTML = thread.floors.map((f, i) => `
+      <div class="floor">
+        <div class="floor-side">
+          <div class="avatar">${f.name.slice(0, 1)}</div>
+          <div>
+            <div class="side-name">${f.name}</div>
+            <div class="side-meta">${f.meta || ""}</div>
+          </div>
+        </div>
+        <div class="floor-main">
+          <div class="floor-head">
+            <span>发表于 ${f.time}</span>
+            ${f.isOp ? '<span class="op-badge">楼主</span>' : ""}
+            <span class="floor-num">${i + 1}楼</span>
+          </div>
+          <div class="floor-content">${f.content}</div>
+        </div>
+      </div>
+    `).join("");
+  }
+</script>
+</body>
+</html>

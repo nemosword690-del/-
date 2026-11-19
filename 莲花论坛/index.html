@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>芙蓉论坛 · 莲花公园版</title>
+<style>
+  :root{
+    --bg:#eef0f3; --card:#fff; --line:#d9dde3; --text:#222;
+    --muted:#8a9099; --link:#1a5fb4; --green:#2f4f3a; --red:#a33a2f;
+    --yellow:#fff6d8;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--bg);color:var(--text);
+    font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    font-size:13px;line-height:1.6;
+  }
+  a{color:var(--link);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+
+  header{background:var(--green);color:#f3f1ec;padding:10px 16px;}
+  .header-inner{max-width:900px;margin:0 auto;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+  .logo{font-size:19px;font-weight:700;letter-spacing:1px;}
+  .board-name{font-size:12px;opacity:.85;}
+  .header-right{margin-left:auto;font-size:12px;opacity:.8;}
+  .header-right a{color:#f3f1ec;}
+
+  main{max-width:900px;margin:14px auto 40px;padding:0 12px;}
+
+  .breadcrumb{font-size:12px;color:var(--muted);margin-bottom:8px;}
+
+  .board-info{
+    background:var(--card);border:1px solid var(--line);border-radius:4px;
+    padding:10px 14px;margin-bottom:10px;font-size:12px;color:#666;
+  }
+  .board-info strong{color:var(--text);}
+  .board-info ul{margin:6px 0 0;padding-left:18px;}
+
+  /* 置顶寻人帖 */
+  .missing{
+    background:#fff4f2;border:1px solid #e0b4ad;border-left:4px solid var(--red);
+    border-radius:4px;padding:10px 14px;margin-bottom:10px;
+  }
+  .missing .pin{
+    display:inline-block;background:var(--red);color:#fff;font-size:11px;
+    padding:0 5px;border-radius:2px;margin-right:6px;
+  }
+  .missing h2{font-size:14px;margin:0 0 4px;}
+  .missing h2 a{color:var(--red);}
+  .missing p{margin:2px 0;font-size:12px;color:#555;}
+  .hidden{display:none;}
+
+  /* 帖子列表表格 */
+  .post-table{
+    width:100%;border-collapse:collapse;background:var(--card);
+    border:1px solid var(--line);border-radius:4px;overflow:hidden;
+  }
+  .post-table thead th{
+    background:#f6f7f9;color:#666;font-weight:600;font-size:12px;
+    text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);
+  }
+  .post-table tbody td{
+    padding:9px 10px;border-bottom:1px solid #eef0f3;vertical-align:top;
+  }
+  .post-table tbody tr:last-child td{border-bottom:none;}
+  .post-table tbody tr:hover{background:#fafbfc;}
+  .post-title{font-size:13px;font-weight:600;}
+  .post-title .tag{
+    display:inline-block;font-size:10px;font-weight:400;padding:0 5px;
+    border-radius:2px;background:#e8efe9;color:var(--green);margin-right:5px;
+    vertical-align:1px;
+  }
+  .post-title .tag.hot{background:#fde8e3;color:var(--red);}
+  .post-title .tag.pin{background:var(--yellow);color:#7a5b00;}
+  .post-title .tag.lock{background:#eee;color:#888;}
+  .col-author{width:120px;color:#555;}
+  .col-count{width:110px;color:var(--muted);font-size:12px;white-space:nowrap;}
+  .col-last{width:150px;color:var(--muted);font-size:12px;white-space:nowrap;}
+  .author-name{color:#555;}
+  .author-name.op{color:var(--green);font-weight:600;}
+  .last-reply{color:#888;}
+
+  footer{text-align:center;font-size:11px;color:var(--muted);padding:16px 12px 40px;}
+
+  @media(max-width:640px){
+    .col-author,.col-last{display:none;}
+    .post-table thead th:nth-child(2),
+    .post-table thead th:nth-child(4),
+    .post-table tbody td:nth-child(2),
+    .post-table tbody td:nth-child(4){display:none;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <span class="logo">芙蓉论坛</span>
+    <span class="board-name">› 城市生活 › 莲花公园版</span>
+    <span class="header-right">
+      <!-- 测试用：预览寻人帖。正式版可删。 -->
+      <a href="#" id="toggle-missing">管理入口</a>
+    </span>
+  </div>
+</header>
+
+<main>
+  <div class="breadcrumb">
+    <a href="#">芙蓉论坛</a> › <a href="#">城市生活</a> › 莲花公园版
+  </div>
+
+  <section class="board-info">
+    <strong>莲花公园版 · 版规</strong>
+    <ul>
+      <li>禁止发布相亲角纸牌实拍，禁止讨论他人资料。</li>
+      <li>夜间请勿单独前往珍宝潭，公园每日 21:00 闭园。</li>
+      <li>衣冠庙旧址维修中，暂停参观。</li>
+      <li>本版帖子仅代表网友个人观点。</li>
+    </ul>
+  </section>
+
+  <!-- 置顶寻人帖：默认隐藏，后期显示 -->
+  <section class="missing hidden" id="missing-post">
+    <h2>
+      <span class="pin">置顶</span>
+      <a href="post.html?id=99">【寻人】陆晓冬，女，26岁，9月27日晚在莲花公园附近失联</a>
+    </h2>
+    <p>陆晓冬，女，26岁，身高 170cm，体重 52kg，立德中学物理教师。9 月 27 日 20 时许在莲花公园附近失联，最后出现在公园第三长椅附近。</p>
+    <p>如有线索请联系前门分局或家属。</p>
+  </section>
+
+  <table class="post-table">
+    <thead>
+      <tr>
+        <th>标题</th>
+        <th class="col-author">作者</th>
+        <th class="col-count">回复/查看</th>
+        <th class="col-last">最后发表</th>
+      </tr>
+    </thead>
+    <tbody id="post-list"></tbody>
+  </table>
+</main>
+
+<footer>
+  芙蓉论坛 · 莲花公园版 · 本页面为虚构游戏内容，与真实人物、地点无关
+</footer>
+
+<script>
+  /* ============================================================
+     寻人帖开关
+     后期在别的页面写 localStorage.setItem("失踪揭示","true");
+     这里就会自动显示。也可以点右上角“管理入口”预览。
+     ============================================================ */
+  let SHOW_MISSING_POST = localStorage.getItem("失踪揭示") === "true";
+
+  /* ============================================================
+     帖子列表数据
+     改标题、作者、回复数、最后发表时间，直接改这里。
+     id 要和 post.html 里对应帖子的 id 一致。
+     ============================================================ */
+  const posts = [
+    {
+      id: 1,
+      tag: "讨论", tagClass: "hot",
+      title: "莲花公园相亲角真的很灵吗？",
+      author: "想脱单的柚子",
+      replies: 3, views: "1.2万",
+      lastAuthor: "想脱单的柚子", lastTime: "2024-09-18"
+    },
+    {
+      id: 2,
+      tag: "求助", tagClass: "",
+      title: "求问珍宝潭晚上能钓鱼吗？",
+      author: "钓不到鱼不回家",
+      replies: 1, views: "3,481",
+      lastAuthor: "钓不到鱼不回家", lastTime: "2024-09-19"
+    },
+    {
+      id: 3,
+      tag: "避雷", tagClass: "",
+      title: "避雷，衣冠庙旧址根本没必要去看，一个小博物馆，就几件衣服，没啥好看的。",
+      author: "今天也想出片",
+      replies: 1, views: "8,207",
+      lastAuthor: "住在公园西门", lastTime: "2024-09-19"
+    },
+    {
+      id: 4,
+      tag: "疑问", tagClass: "",
+      title: "有没有人觉得相亲角纸牌编号和长椅对不上？",
+      author: "数椅子的人",
+      replies: 0, views: "6,530",
+      lastAuthor: "数椅子的人", lastTime: "2024-09-20"
+    },
+    {
+      id: 5,
+      tag: "讨论", tagClass: "hot",
+      title: "八字合婚真的准吗？我朋友配完好像出事了？",
+      author: "匿名用户",
+      replies: 2, views: "2.4万",
+      lastAuthor: "蹲后续", lastTime: "2024-09-20"
+    }
+  ];
+
+  const listEl = document.getElementById("post-list");
+
+  function renderPosts() {
+    listEl.innerHTML = posts.map(p => `
+      <tr>
+        <td>
+          <a class="post-title" href="post.html?id=${p.id}">
+            <span class="tag ${p.tagClass}">${p.tag}</span>${p.title}
+          </a>
+        </td>
+        <td class="col-author"><span class="author-name">${p.author}</span></td>
+        <td class="col-count">${p.replies} / ${p.views}</td>
+        <td class="col-last">
+          <span class="last-reply">${p.lastAuthor}</span><br>${p.lastTime}
+        </td>
+      </tr>
+    `).join("");
+  }
+
+  const missingEl = document.getElementById("missing-post");
+  function updateMissingPost() {
+    missingEl.classList.toggle("hidden", !SHOW_MISSING_POST);
+  }
+
+  // 仅用于预览，正式版可删
+  document.getElementById("toggle-missing").addEventListener("click", function (e) {
+    e.preventDefault();
+    SHOW_MISSING_POST = !SHOW_MISSING_POST;
+    updateMissingPost();
+  });
+
+  renderPosts();
+  updateMissingPost();
+</script>
+</body>
+</html>
